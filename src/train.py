@@ -13,7 +13,7 @@ def train(unused_argv):
     eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
 
     # Create the Estimator
-    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model"))
+    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/mnist_convnet_model"))
 
     # Set up logging for predictions
     tensors_to_log = {"probabilities": "softmax_tensor"}
