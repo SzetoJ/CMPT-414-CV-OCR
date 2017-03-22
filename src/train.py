@@ -1,4 +1,5 @@
 from tensorflow.contrib import learn
+from tensorflow.contrib.learn.python import SKCompat
 from model import cnn_model_fn
 import numpy as np
 import tensorflow as tf
@@ -12,7 +13,7 @@ def train(unused_argv):
     eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
 
     # Create the Estimator
-    mnist_classifier = learn.Estimator(model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model")
+    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="/tmp/mnist_convnet_model"))
 
     # Set up logging for predictions
     tensors_to_log = {"probabilities": "softmax_tensor"}
@@ -33,7 +34,7 @@ def train(unused_argv):
     }
 
     # Evaluate the model and print results
-    eval_results = mnist_classifier.evaluate(x=eval_data, y=eval_labels, metrics=metrics)
+    eval_results = mnist_classifier.score(x=eval_data, y=eval_labels, metrics=metrics)
     print(eval_results)
 
 if __name__ == "__main__":
