@@ -7,9 +7,9 @@ import tensorflow as tf
 
 def train(unused_argv):
     mnist = learn.datasets.load_dataset("mnist")
-    train_data = mnist.train.images # Returns np.array
+    train_data = mnist.train.images
     train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
-    eval_data = mnist.test.images # Returns np.array
+    eval_data = mnist.test.images
     eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
 
     # Create the Estimator
