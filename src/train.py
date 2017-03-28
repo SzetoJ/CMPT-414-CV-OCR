@@ -49,14 +49,14 @@ def train(unused_argv):
     evaluation_set = file_dict["evaluation_set"]
 
     # Create the Estimator
-    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/char74_convnet_model"))
+    classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/char74_convnet_model"))
 
     # Set up logging for predictions
     tensors_to_log = {"probabilities": "softmax_tensor"}
     logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=50)
 
     # Train the model
-    mnist_classifier.fit(
+    classifier.fit(
         x=image_generator_builder("../data/images/font/", training_set),
         y=label_generator_builder(training_set),
         batch_size=100,
@@ -72,7 +72,7 @@ def train(unused_argv):
     }
 
     # Evaluate the model and print results
-    eval_results = mnist_classifier.score(x=image_generator_builder("../data/images/font/", evaluation_set),
+    eval_results = classifier.score(x=image_generator_builder("../data/images/font/", evaluation_set),
                                           y=label_generator_builder(evaluation_set),
                                           metrics=metrics)
     print(eval_results)
