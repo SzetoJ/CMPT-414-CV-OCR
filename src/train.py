@@ -3,17 +3,53 @@ from tensorflow.contrib.learn.python import SKCompat
 from model import cnn_model_fn
 import numpy as np
 import tensorflow as tf
+import cv2
+
+
+def split_image_data(file_list_path, training_set_percent=0.01):
+    with open(file_list_path, 'r') as input_file:
+        file_list = input_file.read().splitlines()
+
+    number_files = len(file_list)
+    print("Total number of files: {}".format(number_files))
+
+    training_set = np.random.choice(file_list, int(round(number_files * training_set_percent)), replace=False)
+    print("Size training set: {}".format(str(len(training_set))))
+
+    evaluation_set = list(set(file_list) ^ set(training_set))
+    print("Size test set: {}".format(str(len(evaluation_set))))
+
+    return {"training_set": training_set,
+            "evaluation_set": evaluation_set}
+
+
+def image_generator_builder(dir_path, image_list):
+    def image_generator():
+        for i in image_list:
+            yield np.array([cv2.imread(dir_path + i + ".png", 0)], dtype=np.float32)
+    return image_generator()
+
+
+def label_generator_builder(image_list):
+    def label_generator():
+        for i in image_list:
+            sub_path = i.split("/")[0]
+            stripped_path = sub_path.strip("Sample")
+            index = int(stripped_path) - 1
+            oneshot = np.zeros(62)
+            oneshot[index] = 1
+            yield oneshot
+    return label_generator()
 
 
 def train(unused_argv):
-    mnist = learn.datasets.load_dataset("mnist")
-    train_data = mnist.train.images
-    train_labels = np.asarray(mnist.train.labels, dtype=np.int32)
-    eval_data = mnist.test.images
-    eval_labels = np.asarray(mnist.test.labels, dtype=np.int32)
+    # Prepare training and evaluation data
+    file_dict = split_image_data("../data/images/list/all.txt")
+    training_set = file_dict["training_set"]
+    evaluation_set = file_dict["evaluation_set"]
 
     # Create the Estimator
-    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/mnist_convnet_model"))
+    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/char74_convnet_model"))
 
     # Set up logging for predictions
     tensors_to_log = {"probabilities": "softmax_tensor"}
@@ -21,8 +57,8 @@ def train(unused_argv):
 
     # Train the model
     mnist_classifier.fit(
-        x=train_data,
-        y=train_labels,
+        x=image_generator_builder("../data/images/font/", training_set),
+        y=label_generator_builder(training_set),
         batch_size=100,
         steps=20000,
         monitors=[logging_hook]
@@ -34,7 +70,9 @@ def train(unused_argv):
     }
 
     # Evaluate the model and print results
-    eval_results = mnist_classifier.score(x=eval_data, y=eval_labels, metrics=metrics)
+    eval_results = mnist_classifier.score(x=image_generator_builder("../data/images/font/", evaluation_set),
+                                          y=label_generator_builder(evaluation_set),
+                                          metrics=metrics)
     print(eval_results)
 
 if __name__ == "__main__":
