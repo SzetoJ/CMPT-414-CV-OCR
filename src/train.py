@@ -6,7 +6,7 @@ import tensorflow as tf
 import cv2
 
 
-def split_image_data(file_list_path, training_set_percent=0.01):
+def split_image_data(file_list_path, training_set_percent=0.7):
     with open(file_list_path, 'r') as input_file:
         file_list = input_file.read().splitlines()
 
@@ -59,8 +59,8 @@ def train(unused_argv):
     mnist_classifier.fit(
         x=image_generator_builder("../data/images/font/", training_set),
         y=label_generator_builder(training_set),
-        batch_size=4,
-        steps=2,
+        batch_size=100,
+        steps=40000,
         monitors=[logging_hook]
     )
 
