@@ -26,7 +26,9 @@ def split_image_data(file_list_path, training_set_percent=0.01):
 def image_generator_builder(dir_path, image_list):
     def image_generator():
         for i in image_list:
-            yield np.array([cv2.imread(dir_path + i + ".png", 0)], dtype=np.float32)
+            image = cv2.imread(dir_path + i + ".png", 0)
+            shrunk_image = cv2.resize(image, (28, 28), cv2.INTER_AREA)
+            yield np.array([shrunk_image], dtype=np.float32)
     return image_generator()
 
 
@@ -59,10 +61,12 @@ def train(unused_argv):
     mnist_classifier.fit(
         x=image_generator_builder("../data/images/font/", training_set),
         y=label_generator_builder(training_set),
-        batch_size=100,
-        steps=20000,
+        batch_size=1,
+        steps=1,
         monitors=[logging_hook]
     )
+
+    print("Model has been trained, beginning evaluation")
 
     # Configure the accuracy metric for evaluation
     metrics = {

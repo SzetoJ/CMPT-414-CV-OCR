@@ -25,15 +25,14 @@ def cnn_model_fn(features, labels, mode):
     dropout = tf.layers.dropout(inputs=fc1, rate=0.4, training=mode == learn.ModeKeys.TRAIN)
 
     # Logits Layer
-    logits = tf.layers.dense(inputs=dropout, units=10)
+    logits = tf.layers.dense(inputs=dropout, units=62)
 
     loss = None
     train_op = None
 
     # Calculate Loss (for both TRAIN and EVAL modes)
     if mode != learn.ModeKeys.INFER:
-        onehot_labels = tf.one_hot(indices=tf.cast(labels, tf.int32), depth=10)
-        loss = tf.losses.softmax_cross_entropy(onehot_labels=onehot_labels, logits=logits)
+        loss = tf.losses.softmax_cross_entropy(onehot_labels=labels, logits=logits)
 
     # Configure the Training Op (for TRAIN mode)
     if mode == learn.ModeKeys.TRAIN:
