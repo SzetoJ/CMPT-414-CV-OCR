@@ -38,9 +38,7 @@ def label_generator_builder(image_list):
             sub_path = i.split("/")[0]
             stripped_path = sub_path.strip("Sample")
             index = int(stripped_path) - 1
-            oneshot = np.zeros(62)
-            oneshot[index] = 1
-            yield oneshot
+            yield np.asarray(index, dtype=np.float32)
     return label_generator()
 
 
@@ -61,8 +59,8 @@ def train(unused_argv):
     mnist_classifier.fit(
         x=image_generator_builder("../data/images/font/", training_set),
         y=label_generator_builder(training_set),
-        batch_size=1,
-        steps=1,
+        batch_size=4,
+        steps=2,
         monitors=[logging_hook]
     )
 
