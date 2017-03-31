@@ -3,6 +3,10 @@ from tensorflow.contrib import learn
 from model import cnn_model_fn
 import cv2
 import numpy as np
+import preprocess
+import matplotlib
+matplotlib.use('TkAgg')
+from matplotlib import pyplot
 
 
 def predict(input_image):
@@ -15,5 +19,10 @@ def predict(input_image):
 
 
 if __name__ == "__main__":
-    image = cv2.imread("../data/input/TestImage9.jpg", 0)
-    predict(image)
+    image = cv2.imread("../data/input/TestImage7.jpg", 0)
+    segmented_image = preprocess.extract_boxes(image)
+    for segment in segmented_image:
+        scaled_segment = preprocess.scale_image(segment)
+        pyplot.imshow(scaled_segment)
+        pyplot.show()
+        predict(scaled_segment)
