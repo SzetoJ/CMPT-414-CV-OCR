@@ -1,0 +1,58 @@
+% README.tex
+% Based on File acl2012.tex
+%
+% Contact: Maggie Li (cswjli@comp.polyu.edu.hk), Michael White (mwhite@ling.osu.edu)
+%%
+%% Based on the style files for ACL2008 by Joakim Nivre and Noah Smith
+%% and that of ACL2010 by Jing-Shin Chang and Philipp Koehn
+
+
+\documentclass[11pt,letterpaper]{article}
+\usepackage[letterpaper]{geometry}
+\usepackage{acl2012}
+\usepackage{times}
+\usepackage{latexsym}
+\usepackage{amsmath}
+\usepackage{multirow}
+\usepackage{url}
+\usepackage{pgfplots}
+\makeatletter
+\newcommand{\@BIBLABEL}{\@emptybiblabel}
+\newcommand{\@emptybiblabel}[1]{}
+\makeatother
+\usepackage[hidelinks]{hyperref}
+\DeclareMathOperator*{\argmax}{arg\,max}
+\setlength\titlebox{6.5cm}    % Expanding the titlebox
+
+
+\title{CMPT-414-OCR-CNN}
+\author{Jay Szeto \and Adrian Lim \\
+  Simon Fraser University\\
+  8888 University Drive
+  Burnaby, BC, Canada V5A1S6 \\
+  {\tt \{jsa143,aclim\}@sfu.ca} \\}
+
+
+\begin{document}
+
+\maketitle
+
+\section{Introduction}
+
+\section{Sources/References}
+Certain Tutorials were provided by Tensorflow regarding how to create our own MNIST Convolutional Neural Networks
+\begin{verbatim}
+https://www.tensorflow.org/get_started/mnist/mechanics
+https://www.tensorflow.org/tutorials/layers
+\end{verbatim}
+
+Instead of using the provided MNIST dataset, the Chars74K EnglishFnt dataset was used
+http://www.ee.surrey.ac.uk/CVSSP/demos/chars74k/
+This is a sentence.~\cite{deCampos09}
+
+tbc...
+
+\bibliography{project}
+\bibliographystyle{acl2012}
+
+\end{document}
