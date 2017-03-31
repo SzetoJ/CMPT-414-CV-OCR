@@ -7,7 +7,7 @@ import numpy as np
 
 def predict(input_image):
     # Create the Estimator
-    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/mnist_convnet_model"))
+    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/char74_convnet_model"))
 
     # Do Prediction and print results
     predictions = mnist_classifier.predict(np.array([input_image], dtype=np.float32))
@@ -15,5 +15,5 @@ def predict(input_image):
 
 
 if __name__ == "__main__":
-    image = cv2.imread("../images/TestImage7.jpg", 0)
+    image = cv2.imread("../data/input/TestImage9.jpg", 0)
     predict(image)
