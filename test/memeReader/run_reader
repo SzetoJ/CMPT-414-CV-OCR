@@ -1,0 +1,7 @@
+echo "~ Reader Script for MemeReader ~"
+echo "Please ensure that the appropriate folders are available:"
+echo "     images -> folder containing original memes"
+echo "     output -> intermediate folder for MemeReader algorithm"
+echo "     boxes  -> final extracted boxes for algorithm"
+python memeReader.py
+python extractBoxes.py
