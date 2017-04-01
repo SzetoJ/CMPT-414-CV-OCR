@@ -3,5 +3,18 @@ echo "Please ensure that the appropriate folders are available:"
 echo "     images -> folder containing original memes"
 echo "     output -> intermediate folder for MemeReader algorithm"
 echo "     boxes  -> final extracted boxes for algorithm"
-python memeReader.py
-python extractBoxes.py
+function makedir {
+	if [ ! -d "./$DIRNAME/" ]
+	then
+		echo "Directory ($DIRNAME) not found.  Creating new ($DIRNAME) directory."
+		mkdir $DIRNAME
+	fi
+}
+DIRNAME="images"
+makedir
+DIRNAME="output"
+makedir
+DIRNAME="boxes"
+makedir
+#python memeReader.py
+#python extractBoxes.py
