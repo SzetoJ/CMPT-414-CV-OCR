@@ -19,7 +19,7 @@ def predict(input_image):
 
 
 if __name__ == "__main__":
-    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/ABC.jpg", 0)
+    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/smile.jpg", 0)
     segmented_image = preprocess.extract_boxes(image)
     for segment in segmented_image:
         scaled_segment = preprocess.scale_image(segment)
