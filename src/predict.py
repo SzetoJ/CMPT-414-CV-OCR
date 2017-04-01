@@ -7,6 +7,7 @@ import preprocess
 import matplotlib
 matplotlib.use('TkAgg')
 from matplotlib import pyplot
+import mapping
 
 
 def predict(input_image):
@@ -15,14 +16,17 @@ def predict(input_image):
 
     # Do Prediction and print results
     predictions = mnist_classifier.predict(np.array([input_image], dtype=np.float32))
-    print(predictions)
+    print(mapping.char74_mapping[predictions['classes'][0]])
 
 
 if __name__ == "__main__":
-    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/smile.jpg", 0)
+    SHOW_PROCESSED_IMAGES = False
+
+    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/ABC.jpg", 0)
     segmented_image = preprocess.extract_boxes(image)
     for segment in segmented_image:
         scaled_segment = preprocess.scale_image(segment)
-        pyplot.imshow(scaled_segment)
-        pyplot.show()
+        if SHOW_PROCESSED_IMAGES:
+            pyplot.imshow(scaled_segment)
+            pyplot.show()
         predict(scaled_segment)
