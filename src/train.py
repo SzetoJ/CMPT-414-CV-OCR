@@ -62,7 +62,7 @@ def train(unused_argv):
         x=image_generator_builder("../data/images/font/", training_set),
         y=label_generator_builder(training_set),
         batch_size=100,
-        steps=3000,
+        steps=20000,
         monitors=[logging_hook]
     )
 
@@ -75,8 +75,8 @@ def train(unused_argv):
 
     # Evaluate the model and print results
     eval_results = classifier.score(x=image_generator_builder("../data/images/font/", evaluation_set),
-                                          y=label_generator_builder(evaluation_set),
-                                          metrics=metrics)
+                                    y=label_generator_builder(evaluation_set),
+                                    metrics=metrics)
     print(eval_results)
 
 if __name__ == "__main__":
