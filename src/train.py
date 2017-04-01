@@ -4,6 +4,7 @@ from model import cnn_model_fn
 import numpy as np
 import tensorflow as tf
 import cv2
+import preprocess
 
 
 def split_image_data(file_list_path, training_set_percent=0.7):
@@ -27,7 +28,8 @@ def image_generator_builder(dir_path, image_list):
     def image_generator():
         for i in image_list:
             image = cv2.imread(dir_path + i + ".png", 0)
-            shrunk_image = cv2.resize(image, (28, 28), cv2.INTER_AREA)
+            contour = preprocess.extract_boxes(image)
+            shrunk_image = preprocess.scale_image(contour[0])
             yield np.array([shrunk_image], dtype=np.float32)
     return image_generator()
 
@@ -44,7 +46,7 @@ def label_generator_builder(image_list):
 
 def train(unused_argv):
     # Prepare training and evaluation data
-    file_dict = split_image_data("../data/images/list/all.txt")
+    file_dict = split_image_data("../data/images/list/all.txt", training_set_percent=0.9)
     training_set = file_dict["training_set"]
     evaluation_set = file_dict["evaluation_set"]
 
@@ -60,7 +62,7 @@ def train(unused_argv):
         x=image_generator_builder("../data/images/font/", training_set),
         y=label_generator_builder(training_set),
         batch_size=100,
-        steps=40000,
+        steps=3000,
         monitors=[logging_hook]
     )
 
