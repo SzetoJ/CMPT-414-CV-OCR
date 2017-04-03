@@ -4,8 +4,6 @@ from model import cnn_model_fn
 import numpy as np
 import tensorflow as tf
 import cv2
-import preprocess
-from matplotlib import pyplot
 
 
 def split_image_data(file_list_path, training_set_percent=0.7):
