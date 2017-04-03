@@ -27,7 +27,7 @@ def image_generator_builder(dir_path, image_list):
     def image_generator():
         for i in image_list:
             image = cv2.imread(dir_path + i + ".png", 0)
-            resized_image = cv2.resize(image, (28, 28), cv2.INTER_AREA)
+            resized_image = cv2.resize(image, (56, 56), cv2.INTER_AREA)
             ret, thresh = cv2.threshold(resized_image, 40, 255, cv2.THRESH_BINARY)
             yield np.array([thresh], dtype=np.float32)
     return image_generator()
@@ -47,6 +47,10 @@ def train(unused_argv):
     # Prepare training and evaluation data
     file_dict = split_image_data("../data/images/list/all.txt", training_set_percent=0.9)
     training_set = file_dict["training_set"]
+
+    number_epochs = 2
+    new_training_set = [val for val in training_set for _ in range(number_epochs)]
+
     evaluation_set = file_dict["evaluation_set"]
 
     # Create the Estimator
@@ -58,10 +62,10 @@ def train(unused_argv):
 
     # Train the model
     classifier.fit(
-        x=image_generator_builder("../data/images/font/", training_set),
-        y=label_generator_builder(training_set),
+        x=image_generator_builder("../data/images/font/", new_training_set),
+        y=label_generator_builder(new_training_set),
         batch_size=100,
-        steps=20000,
+        steps=1200,
         monitors=[logging_hook]
     )
 

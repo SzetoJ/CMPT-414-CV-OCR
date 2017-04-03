@@ -5,7 +5,7 @@ from tensorflow.contrib.learn.python.learn.estimators import model_fn as model_f
 
 def cnn_model_fn(features, labels, mode):
     # Input Layer
-    input_layer = tf.reshape(features, [-1, 28, 28, 1])
+    input_layer = tf.reshape(features, [-1, 56, 56, 1])
 
     # Convolutional Layer #1
     conv1 = tf.layers.conv2d(input_layer, filters=32, kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu)
@@ -17,7 +17,7 @@ def cnn_model_fn(features, labels, mode):
     conv2 = tf.layers.conv2d(pool1, filters=64, kernel_size=[5, 5], padding="SAME", activation=tf.nn.relu)
 
     # Pooling Layer #2
-    pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[2, 2], strides=2)
+    pool2 = tf.layers.max_pooling2d(inputs=conv2, pool_size=[4, 4], strides=4)
 
     # Fully Connected Layer
     pool2_flat = tf.reshape(pool2, [-1, 7 * 7 * 64])

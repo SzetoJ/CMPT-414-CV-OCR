@@ -22,7 +22,7 @@ def predict(input_image):
 if __name__ == "__main__":
     SHOW_PROCESSED_IMAGES = False
 
-    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/full_alphabet.png", 0)
+    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/smile.jpg", 0)
     filled_lines = preprocess.segment_lines(image, 100)
     characters = []
     for line in filled_lines:
