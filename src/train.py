@@ -5,6 +5,7 @@ import numpy as np
 import tensorflow as tf
 import cv2
 import preprocess
+from matplotlib import pyplot
 
 
 def split_image_data(file_list_path, training_set_percent=0.7):
@@ -28,9 +29,9 @@ def image_generator_builder(dir_path, image_list):
     def image_generator():
         for i in image_list:
             image = cv2.imread(dir_path + i + ".png", 0)
-            contour = preprocess.extract_boxes(image)
-            shrunk_image = preprocess.scale_image(contour[0])
-            yield np.array([shrunk_image], dtype=np.float32)
+            resized_image = cv2.resize(image, (28, 28), cv2.INTER_AREA)
+            ret, thresh = cv2.threshold(resized_image, 40, 255, cv2.THRESH_BINARY)
+            yield np.array([thresh], dtype=np.float32)
     return image_generator()
 
 
