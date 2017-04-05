@@ -50,15 +50,22 @@ def train(unused_argv):
 
     number_epochs = 2
     new_training_set = [val for val in training_set for _ in range(number_epochs)]
-
     evaluation_set = file_dict["evaluation_set"]
 
     # Create the Estimator
-    classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/char74_convnet_model"))
+    classifier = learn.Estimator(model_fn=cnn_model_fn,
+                                 model_dir="../models/char74_convnet_model",
+                                 config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 
     # Set up logging for predictions
-    tensors_to_log = {"probabilities": "softmax_tensor"}
-    logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=50)
+    metrics = {"accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes")}
+
+    validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
+        np.array(list(image_generator_builder("../data/images/font/", evaluation_set))),
+        np.array(list(label_generator_builder(evaluation_set))),
+        every_n_steps=50,
+        metrics=metrics
+    )
 
     # Train the model
     classifier.fit(
@@ -66,7 +73,7 @@ def train(unused_argv):
         y=label_generator_builder(new_training_set),
         batch_size=100,
         steps=1200,
-        monitors=[logging_hook]
+        monitors=[validation_monitor]
     )
 
     print("Model has been trained, beginning evaluation")
@@ -77,9 +84,9 @@ def train(unused_argv):
     }
 
     # Evaluate the model and print results
-    eval_results = classifier.score(x=image_generator_builder("../data/images/font/", evaluation_set),
-                                    y=label_generator_builder(evaluation_set),
-                                    metrics=metrics)
+    eval_results = classifier.evaluate(x=image_generator_builder("../data/images/font/", evaluation_set),
+                                       y=label_generator_builder(evaluation_set),
+                                       metrics=metrics)
     print(eval_results)
 
 if __name__ == "__main__":
