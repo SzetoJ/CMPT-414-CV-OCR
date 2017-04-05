@@ -1,5 +1,4 @@
 from tensorflow.contrib import learn
-from tensorflow.contrib.learn.python import SKCompat
 from model import cnn_model_fn
 import numpy as np
 import tensorflow as tf
@@ -27,7 +26,7 @@ def image_generator_builder(dir_path, image_list):
     def image_generator():
         for i in image_list:
             image = cv2.imread(dir_path + i + ".png", 0)
-            resized_image = cv2.resize(image, (28, 28), cv2.INTER_AREA)
+            resized_image = cv2.resize(image, (56, 56), cv2.INTER_AREA)
             ret, thresh = cv2.threshold(resized_image, 40, 255, cv2.THRESH_BINARY)
             yield np.array([thresh], dtype=np.float32)
     return image_generator()
@@ -43,26 +42,46 @@ def label_generator_builder(image_list):
     return label_generator()
 
 
+def repeat_list(list, repeats):
+    output_list = []
+    for i in range(repeats):
+        output_list.extend(list)
+    return output_list
+
+
 def train(unused_argv):
     # Prepare training and evaluation data
     file_dict = split_image_data("../data/images/list/all.txt", training_set_percent=0.9)
     training_set = file_dict["training_set"]
+    number_epochs = 3
+    new_training_set = repeat_list(training_set, number_epochs)
     evaluation_set = file_dict["evaluation_set"]
 
     # Create the Estimator
-    classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/char74_convnet_model"))
+    classifier = learn.Estimator(model_fn=cnn_model_fn,
+                                 model_dir="../models/char74_convnet_model",
+                                 config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 
     # Set up logging for predictions
-    tensors_to_log = {"probabilities": "softmax_tensor"}
-    logging_hook = tf.train.LoggingTensorHook(tensors=tensors_to_log, every_n_iter=50)
+    metrics = {"accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes")}
+
+    validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
+        np.array(list(image_generator_builder("../data/images/font/", evaluation_set))),
+        np.array(list(label_generator_builder(evaluation_set))),
+        every_n_steps=50,
+        metrics=metrics,
+        early_stopping_metric="loss",
+        early_stopping_metric_minimize=True,
+        early_stopping_rounds=200
+    )
 
     # Train the model
     classifier.fit(
-        x=image_generator_builder("../data/images/font/", training_set),
-        y=label_generator_builder(training_set),
+        x=image_generator_builder("../data/images/font/", new_training_set),
+        y=label_generator_builder(new_training_set),
         batch_size=100,
-        steps=20000,
-        monitors=[logging_hook]
+        steps=1800,
+        monitors=[validation_monitor]
     )
 
     print("Model has been trained, beginning evaluation")
@@ -73,9 +92,9 @@ def train(unused_argv):
     }
 
     # Evaluate the model and print results
-    eval_results = classifier.score(x=image_generator_builder("../data/images/font/", evaluation_set),
-                                    y=label_generator_builder(evaluation_set),
-                                    metrics=metrics)
+    eval_results = classifier.evaluate(x=image_generator_builder("../data/images/font/", evaluation_set),
+                                       y=label_generator_builder(evaluation_set),
+                                       metrics=metrics)
     print(eval_results)
 
 if __name__ == "__main__":

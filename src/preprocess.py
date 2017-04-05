@@ -93,7 +93,7 @@ def scale_image(input_image):
 
     scaled_image = cv2.resize(scale_correct, (96, 96), cv2.INTER_AREA)
     padded_image = cv2.copyMakeBorder(scaled_image, top=16, bottom=16, left=16, right=16, borderType=cv2.BORDER_CONSTANT, value=255)
-    output_image = cv2.resize(padded_image, (28, 28), cv2.INTER_AREA)
+    output_image = cv2.resize(padded_image, (56, 56), cv2.INTER_AREA)
     ret, thresh = cv2.threshold(output_image, 40, 255, cv2.THRESH_BINARY)
     return thresh
 
@@ -110,7 +110,7 @@ def preprocess(input_image):
     return output
 
 if __name__ == "__main__":
-    input_image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/full_alphabet.png", 0)
+    input_image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/smile.jpg", 0)
 
     for i in preprocess(input_image):
         pyplot.imshow(i)
