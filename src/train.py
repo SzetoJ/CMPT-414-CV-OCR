@@ -1,5 +1,4 @@
 from tensorflow.contrib import learn
-from tensorflow.contrib.learn.python import SKCompat
 from model import cnn_model_fn
 import numpy as np
 import tensorflow as tf
@@ -64,7 +63,10 @@ def train(unused_argv):
         np.array(list(image_generator_builder("../data/images/font/", evaluation_set))),
         np.array(list(label_generator_builder(evaluation_set))),
         every_n_steps=50,
-        metrics=metrics
+        metrics=metrics,
+        early_stopping_metric="loss",
+        early_stopping_metric_minimize=True,
+        early_stopping_rounds=200
     )
 
     # Train the model
