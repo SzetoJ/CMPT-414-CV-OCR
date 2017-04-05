@@ -42,13 +42,19 @@ def label_generator_builder(image_list):
     return label_generator()
 
 
+def repeat_list(list, repeats):
+    output_list = []
+    for i in range(repeats):
+        output_list.extend(list)
+    return output_list
+
+
 def train(unused_argv):
     # Prepare training and evaluation data
     file_dict = split_image_data("../data/images/list/all.txt", training_set_percent=0.9)
     training_set = file_dict["training_set"]
-
-    number_epochs = 2
-    new_training_set = [val for val in training_set for _ in range(number_epochs)]
+    number_epochs = 3
+    new_training_set = repeat_list(training_set, number_epochs)
     evaluation_set = file_dict["evaluation_set"]
 
     # Create the Estimator
@@ -74,7 +80,7 @@ def train(unused_argv):
         x=image_generator_builder("../data/images/font/", new_training_set),
         y=label_generator_builder(new_training_set),
         batch_size=100,
-        steps=1200,
+        steps=1800,
         monitors=[validation_monitor]
     )
 
