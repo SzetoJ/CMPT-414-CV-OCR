@@ -60,7 +60,7 @@ def train(unused_argv):
 
     # Create the Estimator
     classifier = learn.Estimator(model_fn=cnn_model_fn,
-                                 model_dir="../models/28x28_scaled_char74_convnet_model",
+                                 model_dir="../models/56x56_3_layers_scaled_char74_convnet_model",
                                  config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 
     # Set up logging for predictions
@@ -89,7 +89,7 @@ def train(unused_argv):
 
     # Configure the accuracy metric for evaluation
     metrics = {
-        "accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes"),
+        "prediction_accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes"),
     }
 
     # Evaluate the model and print results
