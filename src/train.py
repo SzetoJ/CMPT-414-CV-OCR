@@ -20,7 +20,8 @@ def split_image_data(file_list_path, training_set_percent=0.7):
     print("Size test set: {}".format(str(len(evaluation_set))))
 
     return {"training_set": training_set,
-            "evaluation_set": evaluation_set}
+            "evaluation_set": evaluation_set[:len(evaluation_set)],
+            "test_set": evaluation_set[len(evaluation_set):]}
 
 
 def image_generator_builder(dir_path, image_list):
@@ -50,6 +51,10 @@ def repeat_list(list, repeats):
     return output_list
 
 
+def get_subset(list, size):
+    return np.random.choice(list, size, replace=False)
+
+
 def train(unused_argv):
     # Prepare training and evaluation data
     file_dict = split_image_data("../data/images/list/all.txt", training_set_percent=0.9)
@@ -57,6 +62,7 @@ def train(unused_argv):
     number_epochs = 3
     new_training_set = repeat_list(training_set, number_epochs)
     evaluation_set = file_dict["evaluation_set"]
+    test_set = file_dict["test_set"]
 
     # Create the Estimator
     classifier = learn.Estimator(model_fn=cnn_model_fn,
@@ -64,13 +70,25 @@ def train(unused_argv):
                                  config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 
     # Set up logging for predictions
-    metrics = {"accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes")}
+    evaluation_metrics = {"validation_accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes")}
 
     validation_monitor = tf.contrib.learn.monitors.ValidationMonitor(
         np.array(list(image_generator_builder("../data/images/font/", evaluation_set))),
         np.array(list(label_generator_builder(evaluation_set))),
         every_n_steps=50,
-        metrics=metrics,
+        metrics=evaluation_metrics,
+        early_stopping_metric="loss",
+        early_stopping_metric_minimize=True,
+        early_stopping_rounds=200
+    )
+
+    training_test_set = get_subset(training_set, len(evaluation_set))
+    training_metrics = {"training_accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes")}
+    training_monitor = tf.contrib.learn.monitors.ValidationMonitor(
+        np.array(list(image_generator_builder("../data/images/font/", training_test_set))),
+        np.array(list(label_generator_builder(training_test_set))),
+        every_n_steps=50,
+        metrics=training_metrics,
         early_stopping_metric="loss",
         early_stopping_metric_minimize=True,
         early_stopping_rounds=200
@@ -81,21 +99,21 @@ def train(unused_argv):
         x=image_generator_builder("../data/images/font/", new_training_set),
         y=label_generator_builder(new_training_set),
         batch_size=100,
-        steps=1800,
-        monitors=[validation_monitor]
+        steps=1280,
+        monitors=[validation_monitor, training_monitor]
     )
 
     print("Model has been trained, beginning evaluation")
 
     # Configure the accuracy metric for evaluation
-    metrics = {
-        "prediction_accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes"),
+    prediction_metrics = {
+        "test_accuracy": learn.MetricSpec(metric_fn=tf.metrics.accuracy, prediction_key="classes"),
     }
 
     # Evaluate the model and print results
-    eval_results = classifier.evaluate(x=image_generator_builder("../data/images/font/", evaluation_set),
-                                       y=label_generator_builder(evaluation_set),
-                                       metrics=metrics)
+    eval_results = classifier.evaluate(x=image_generator_builder("../data/images/font/", test_set),
+                                       y=label_generator_builder(test_set),
+                                       metrics=prediction_metrics)
     print(eval_results)
 
 if __name__ == "__main__":
