@@ -3,6 +3,7 @@ from model import cnn_model_fn
 import numpy as np
 import tensorflow as tf
 import cv2
+import preprocess
 
 
 def split_image_data(file_list_path, training_set_percent=0.7):
@@ -26,9 +27,9 @@ def image_generator_builder(dir_path, image_list):
     def image_generator():
         for i in image_list:
             image = cv2.imread(dir_path + i + ".png", 0)
-            resized_image = cv2.resize(image, (56, 56), cv2.INTER_AREA)
-            ret, thresh = cv2.threshold(resized_image, 40, 255, cv2.THRESH_BINARY)
-            yield np.array([thresh], dtype=np.float32)
+            outer_image = preprocess.extract_outer_box(image)
+            scaled_image = preprocess.scale_image(outer_image)
+            yield np.array([scaled_image], dtype=np.float32)
     return image_generator()
 
 
@@ -59,7 +60,7 @@ def train(unused_argv):
 
     # Create the Estimator
     classifier = learn.Estimator(model_fn=cnn_model_fn,
-                                 model_dir="../models/char74_convnet_model",
+                                 model_dir="../models/28x28_scaled_char74_convnet_model",
                                  config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 
     # Set up logging for predictions

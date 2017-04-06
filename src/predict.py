@@ -12,7 +12,7 @@ import mapping
 
 def predict(input_image):
     # Create the Estimator
-    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/char74_convnet_model"))
+    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/28x28_scaled_char74_convnet_model"))
 
     # Do Prediction and print results
     predictions = mnist_classifier.predict(np.array([input_image], dtype=np.float32))
@@ -22,7 +22,7 @@ def predict(input_image):
 if __name__ == "__main__":
     SHOW_PROCESSED_IMAGES = False
 
-    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/full_alphabet.png", 0)
+    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/alphabet-capital-and-lowercase-A-Z.png", 0)
     filled_lines = preprocess.segment_lines(image, 100)
     characters = []
     for line in filled_lines:
@@ -31,8 +31,9 @@ if __name__ == "__main__":
     output = []
 
     for segment in characters:
-        scaled_segment = preprocess.scale_image(segment)
+        scaled_segment = preprocess.scale_image(preprocess.extract_outer_box(segment))
         if SHOW_PROCESSED_IMAGES:
+            print("Parsed Letter {}".format(predict(scaled_segment)))
             pyplot.imshow(scaled_segment)
             pyplot.show()
         output.append(predict(scaled_segment))

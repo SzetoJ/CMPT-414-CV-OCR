@@ -64,21 +64,32 @@ def segment_characters(input_image, threshold):
     return segmented_lines
 
 
-def extract_boxes(input_image):
+def extract_outer_box(input_image):
     image_negative = (255 - input_image)
     ret, thresh = cv2.threshold(image_negative, 127, 255, cv2.THRESH_BINARY)
     im, contours, hierarchy = cv2.findContours(thresh, cv2.RETR_EXTERNAL, cv2.CHAIN_APPROX_SIMPLE)
-    output_boxes = []
+
+    x_start = None
+    y_start = None
+    x_end = None
+    y_end = None
 
     for cnt in contours:
-        x, y, w, h = cv2.boundingRect(cnt)
-        rec = im[y:y+h, x:x+w]
-        output_boxes.append((x, rec))
+        x_cnt, y_cnt, w_cnt, h_cnt = cv2.boundingRect(cnt)
 
-    output_boxes.sort(key=lambda x: x[0])
-    output_boxes = [x[1] for x in output_boxes]
+        if x_start is None or x_cnt < x_start:
+            x_start = x_cnt
 
-    return output_boxes
+        if y_start is None or y_cnt < y_start:
+            y_start = y_cnt
+
+        if x_end is None or x_cnt + w_cnt > x_end:
+            x_end = x_cnt + w_cnt
+
+        if y_end is None or y_cnt + h_cnt > y_end:
+            y_end = y_cnt + h_cnt
+
+    return input_image[y_start: y_end, x_start:x_end]
 
 
 def scale_image(input_image):
@@ -93,8 +104,8 @@ def scale_image(input_image):
 
     scaled_image = cv2.resize(scale_correct, (96, 96), cv2.INTER_AREA)
     padded_image = cv2.copyMakeBorder(scaled_image, top=16, bottom=16, left=16, right=16, borderType=cv2.BORDER_CONSTANT, value=255)
-    output_image = cv2.resize(padded_image, (56, 56), cv2.INTER_AREA)
-    ret, thresh = cv2.threshold(output_image, 40, 255, cv2.THRESH_BINARY)
+    output_image = cv2.resize(padded_image, (28, 28), cv2.INTER_AREA)
+    ret, thresh = cv2.threshold(output_image, 60, 255, cv2.THRESH_BINARY)
     return thresh
 
 
@@ -110,8 +121,10 @@ def preprocess(input_image):
     return output
 
 if __name__ == "__main__":
-    input_image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/smile.jpg", 0)
+    input_image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/images/font/Sample001/img001-00003.png", 0)
 
-    for i in preprocess(input_image):
-        pyplot.imshow(i)
-        pyplot.show()
+    i = extract_outer_box(input_image)
+    i = scale_image(i)
+
+    pyplot.imshow(i)
+    pyplot.show()
