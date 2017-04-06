@@ -66,7 +66,7 @@ def train(unused_argv):
 
     # Create the Estimator
     classifier = learn.Estimator(model_fn=cnn_model_fn,
-                                 model_dir="../models/56x56_3_layers_scaled_char74_convnet_model",
+                                 model_dir="../models/28x28_2_layers_scaled_char74_convnet_model",
                                  config=tf.contrib.learn.RunConfig(save_checkpoints_secs=60))
 
     # Set up logging for predictions
@@ -99,7 +99,7 @@ def train(unused_argv):
         x=image_generator_builder("../data/images/font/", new_training_set),
         y=label_generator_builder(new_training_set),
         batch_size=100,
-        steps=1280,
+        steps=1800,
         monitors=[validation_monitor, training_monitor]
     )
 
