@@ -12,7 +12,7 @@ import mapping
 
 def predict(input_image):
     # Create the Estimator
-    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/28x28_scaled_char74_convnet_model"))
+    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/56x56_3_layers_scaled_char74_convnet_model"))
 
     # Do Prediction and print results
     predictions = mnist_classifier.predict(np.array([input_image], dtype=np.float32))
@@ -21,12 +21,24 @@ def predict(input_image):
 
 if __name__ == "__main__":
     SHOW_PROCESSED_IMAGES = False
+    SHOW_DEBUG = False
 
-    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/alphabet-capital-and-lowercase-A-Z.png", 0)
+    image = cv2.imread("/Users/adrianlim/IdeaProjects/CMPT-414-CV-OCR/data/input/sentence.png", 0)
+
+    if SHOW_DEBUG:
+        segment_line_debug = preprocess.segment_lines_debug(image, 100, 5)
+        pyplot.imshow(segment_line_debug)
+        pyplot.show()
+
     filled_lines = preprocess.segment_lines(image, 100)
     characters = []
     for line in filled_lines:
         characters += preprocess.segment_characters(line, 100)
+
+        if SHOW_DEBUG:
+            character_debug = preprocess.segment_characters_debug(image, 100, 2)
+            pyplot.imshow(character_debug)
+            pyplot.show()
 
     output = []
 
@@ -39,3 +51,7 @@ if __name__ == "__main__":
         output.append(predict(scaled_segment))
 
     print("Parsed Image: {}".format("".join(output)))
+
+    pyplot.imshow(image, cmap=pyplot.get_cmap('gray'))
+    pyplot.show()
+

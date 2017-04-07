@@ -11,6 +11,59 @@ def check_line_filled(line, threshold):
     return False
 
 
+def segment_lines_debug(input_image, threshold, line_thickness):
+    segmented_indexes = []
+
+    index = 0
+
+    while index < (len(input_image)):
+        if check_line_filled(input_image[index], threshold):
+            current_line = [index]
+            index += 1
+
+            while index < len(input_image) and check_line_filled(input_image[index], threshold):
+                index += 1
+
+            current_line.append(index)
+            segmented_indexes.append(current_line)
+
+        index += 1
+
+    drawn_image = input_image.copy()
+
+    for j in segmented_indexes:
+        cv2.rectangle(drawn_image, (0, j[0]), (len(drawn_image[0]) - 1, j[1]), 0, line_thickness)
+
+    return drawn_image
+
+
+def segment_characters_debug(input_image, threshold, line_thickness):
+    segmented_indexes = []
+
+    index = 0
+
+    while index < (len(input_image[0])):
+
+        if check_line_filled([x[index] for x in input_image], threshold):
+            current_line = [index]
+            index += 1
+
+            while index < len(input_image[0]) and check_line_filled([x[index] for x in input_image], threshold):
+                index += 1
+
+            current_line.append(index)
+            segmented_indexes.append(current_line)
+
+        index += 1
+
+    drawn_image = input_image.copy()
+
+    for j in segmented_indexes:
+        cv2.rectangle(drawn_image, (j[0], 0), (j[1] - 1, len(drawn_image)), 0, line_thickness)
+
+    return drawn_image
+
+
 def segment_lines(input_image, threshold):
     segmented_indexes = []
 
