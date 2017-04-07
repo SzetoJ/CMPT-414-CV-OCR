@@ -17,6 +17,7 @@
 \usepackage{url}
 \usepackage{pgfplots}
 \usepackage{cite}
+\usepackage{framed}
 \makeatother
 \usepackage[hidelinks]{hyperref}
 \DeclareMathOperator*{\argmax}{arg\,max}
@@ -41,11 +42,11 @@
     In order to develop a deeper understanding of OCR using convoluted neural networks, we will be developing an OCR program that can read and classify characters in test images using the Tensorflow library. \cite{tensorflow15-whitepaper} These neural networks will be trained using font generated characters from the Char74k data set. \cite{deCampos09}
     
 \section{Related Work}
-    Aside just using a backpropagation algorithm, Tensorflow uses an assortment of other techniques/algorithms to enable proper training, such as softmax regression and stochastic gradient descent.
+    Tensorflow uses an assortment of techniques/algorithms to enable proper training.~\cite{mnist-for-ml-beginners17}.  This section will focus on highlighting existing concepts and mathematical applications that are core components in the tested neural network.
     
     Tensorflow provides a step-by-step tutorial on building a LeNet style CNN with dropout for classifying the MNIST data set.\cite{tensorflow15-whitepaper, lecun_bottou_bengio_haffner_1998} This provided a good starting point for applying a CNN to the Char74k data set.
 
-\subsection{Softmax Regression}
+\subsection{Model Generation Function}
 Tensorflow uses the softmax regression function to generate the model for assigning probabilities.  This model uses two steps:
 \begin{enumerate}
   \item Collect a sum of evidence values from input belonging to a certain class/label.
@@ -53,7 +54,7 @@ Tensorflow uses the softmax regression function to generate the model for assign
 \end{enumerate}
 Evidence is gathered by performing a weighted sum of the pixel intensities.  A negative weight for a pixel represents evidence that is against the image being in that class (aka label).  Positive weights are treated as evidence in favor of labeling an image to said class.
 
-Extra evidence, called bias, were also added.  These allow the algorithm to affect the evidence with weights "more likely independent of the input"~\cite{mnist-for-ml-beginners}.
+Extra evidence, called bias, were also added.  These allow the algorithm to affect the evidence with weights "more likely independent of the input".
 
 Evidence for a class i given an input x is:
 \begin{equation}
@@ -64,23 +65,68 @@ Evidence for a class i given an input x is:
 where $W_{i}$ is the weight and $b_{i}$ is the bias for class $i$, $j$ being an index allowing the summation of the pixels of the input image $x$.  
 Once these evidences are available, a normalization of $e^x$ is required to calculate the necessary probabilities:
 \begin{equation}
-    softmax(evidence)_{i} = \frac{exp(x_{i})}{\sum exp(x_{j})}
+    softmax(evidence)_{i} = \frac{exp(evidence_{i})}{\sum exp(evidence_{j})}
 \end{equation}
+
+\iffalse
+(Archived just in case)
+\begin{equation}
+    y = softmax(evidence)    
+\end{equation}
+
+\begin{equation}
+    softmax(x) = normalise(exp(x))
+\end{equation}
+
+\begin{equation}
+    softmax(x) = \frac{exp(x_{i})}{\sum_{j} exp(x_{j})}
+\end{equation}
+\fi
 
 Exponentiation allows increases in evidence units to amplify our prediction probabilities, or simply the hypothesis, multiplicatively.  On the other hand, reduction in evidence amounts results in the hypothesis to reduce to a fraction of its original amount.
 
 (The "Implementing the Regression" in first MNIST tutorial is after. However, the ItR section contains implementation details, proper placement of such info may be required...)
 
 
-\subsection{Gradient Descent}
+\subsection{Error Minimization Algorithms}
+Although a method for calculating probability via evidence is available, such a model requires a training process in order to output the desired outcome.  A model's effectiveness is measured by how minimal its error margin is.  A model's loss is measured through the cross-entropy function:
+\begin{equation}
+    H_{y'} = - \sum y'_{i} log(y_{i})
+\end{equation}
+Where $y$ is the predicted probability distribution, and $y'$ is the true distribution of probabilities.  The loss function's output allows users to evaluate the amount of confidence behind a model's prediction.  
+
+A backpropagation algorithm is used to increase prediction confidence.  By evaluating the derivative of each weight, one is able to efficiently determine the direction of improving the weights~\cite{YannLecunBottouOrrMuller98}.
+
+Finally, a gradient descent algorithm is required to determine the appropriate direction of weight changes, and then alter weights to minimize loss.  Although TensorFlow provides a multitude of gradient descent variations, the tested neural network utilized TensorFlow's stochastic gradient descent algorithm~\cite{aGuideToLayers17}.  With all these algorithms, TensorFlow is able to use maps of weights called layers in order to process image pixel data. 
 
 
+\subsection{Layers}
+Neural networks consists of a different range of layer types.  Below are three different types that were used: convolutional, pooling, and fully connected layers~\cite{aGuideToLayers17}.
+\begin{enumerate}
+  \item \textbf{Convolutional Layer:} A layer that applies convolution filters the input image with a ReLU activation function.  Each portion of the image will produce an individual value to the output map.
+  \item \textbf{Max Pooling Layer:} extracts the data from convolutional layers to reduce the dimensions of the received feature map.  Due to the max pooling algorithm, only the maximum values will persist after such downsampling.  
+  \item \textbf{Fully Connected Layer:} Unlike the convolutional and pooling layers, a fully connected layer receives and outputs a map of a constant size.
+\end{enumerate}
+
+
+\iffalse
+(Archived, since already discussed in Error Minimization Algorithms section)
+subsubsection{Training}
+
+https://www.tensorflow.org/get_started/mnist/beginners
+
+The training of the convolutional neural network was implemented through the use of cross-entropy, backpropagation algorithm, and gradient descent optimization (caps?).
+\fi
 
 
 \section{Approach}
+
+\iffalse
     - Note: ... (e.g. reader, cnn neural network layers.  one hot vectors (approach/research...?)from mnist for training, and later detecting features...)
 
     Note: intro to approach section here
+\fi
+
 
 \subsection{Pre-processing and Character Segmentation}
     
@@ -109,49 +155,25 @@ Exponentiation allows increases in evidence units to amplify our prediction prob
     
     In our second model we added an additional convolutional layer and pooling layer and doubled the inital size of the input image.
 
--theorys/algorithms/procedures/concepts of neural networks
-
-http://cs231n.github.io/convolutional-networks/
-
-A letter classification process is used on the provided segmented image through multiple layers.  These layers consists three different types: convolutional, pooling, and dense layers. (Describe each layer here...)
-\begin{enumerate}
-  \item \textbf{Convolutional Layer:} A layer that applies convolution filters the input image with a ReLU activation function.  Each portion of the image will produce an individual value to the output map.
-  \item \textbf{Max Pooling Layer:} extracts the data from convolutional layers to reduce the dimensions of the received feature map.  Due to the max pooling algorithm, only the maximum values will persist after such downsampling.  
-  \item \textbf{Fully Connected Layer:} Unlike the convolutional and pooling layers, a fully connected layer receives and outputs a map of a constant size.
-\end{enumerate}
-
-(Describe structure of the CNN MNIST classifier)
-\begin{enumerate}
-  \item 
-  \item 
-  \item 
-  \item 
-  \item 
-\end{enumerate}
-
+    \begin{figure}
+        \centering
+        \begin{framed}
+        CONV -\>> RELU -> POOL -> CONV ->RELU -> POOL -> FC -> RELU -> DROPOUT -> FC
+        \end{framed}
+        \caption{Model From Tensorflow Tutorial}
+        \label{fig:model_1}
+    \end{figure}
+    
+    \begin{figure}
+        \centering
+        \begin{framed}
+        CONV -\>> RELU -> POOL -> CONV ->RELU -> POOL -> CONV ->RELU -> POOL -> FC -> RELU -> DROPOUT -> FC
+        \end{framed}
+        \caption{Model with additional Convolutional Layer and Pool Layer}
+        \label{fig:model_2}
+    \end{figure}
 
 The Tensorflow library was used to create/structure the neural network layers~\cite{tensorflow15-whitepaper}.
-
-
-\subsubsection{Training}
-https://www.tensorflow.org/get_started/mnist/beginners
-
-The training of the convolutional neural network was implemented through the use of cross-entropy, backpropagation algorithm, and gradient descent optimization (caps?).
-
-
-
-\begin{equation}
-    y = softmax(evidence)    
-\end{equation}
-
-\begin{equation}
-    softmax(x) = normalise(exp(x))
-\end{equation}
-
-\begin{equation}
-    softmax(x) = \frac{exp(x_{i})}{\sum_{j} exp(x_{j})}
-\end{equation}
-
 
 \subsubsection{Predicting}
 
@@ -165,6 +187,7 @@ Directly results of our project (graphs and observations here)
 
 
 \section{Future Work}
+\iffalse
 Below are some brainstormed ideas for future work (Not exhaustive.  Section open to other ideas): 
 
 - what can be improved 
@@ -186,7 +209,11 @@ Below are some brainstormed ideas for future work (Not exhaustive.  Section open
     - text on a piece of paper (can easier be more noise)
         - but as similar in accuracy when reading from digital source, (suppose we read from high definition image of real textbook page to convert into digital source?
             - more issues if we make such a product since currently we assume text is parallel/horizontal
-    
+\fi
+
+\section{Possible Improvements}
+\subsection{Character Segmentation}
+This is the first sentence of subsection...
 
 
 
@@ -210,4 +237,3 @@ https://www.tensorflow.org/tutorials/layers
 \bibliographystyle{ieeetr}
 
 \end{document}
-
