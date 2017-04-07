@@ -12,7 +12,7 @@ import mapping
 
 def predict(input_image):
     # Create the Estimator
-    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/28x28_scaled_char74_convnet_model"))
+    mnist_classifier = SKCompat(learn.Estimator(model_fn=cnn_model_fn, model_dir="../models/56x56_3_layers_scaled_char74_convnet_model"))
 
     # Do Prediction and print results
     predictions = mnist_classifier.predict(np.array([input_image], dtype=np.float32))
